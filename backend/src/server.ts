@@ -5,6 +5,7 @@ import cors from 'cors';
 
 import deviceRoutes from './routes/device.routes.js';
 import topologyRoutes from './routes/topology.routes.js';
+import monitoringRoutes from './routes/monitoring.routes.js';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/devices', deviceRoutes);
 app.use('/api/topology', topologyRoutes);
+app.use('/api/monitoring', monitoringRoutes);
 
 app.listen(PORT, () => {
   console.log(

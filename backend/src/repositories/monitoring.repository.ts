@@ -1,0 +1,130 @@
+import { supabase } from '../config/supabase.js';
+
+export interface MonitoringConfigWithDevice {
+  id: string;
+  device_id: string;
+  method: string;
+  enabled: boolean;
+  interval_seconds: number;
+  timeout_seconds: number;
+  retries: number;
+  configuration: unknown;
+  device: {
+    id: string;
+    name: string;
+    ip_address: string | null;
+    status: string;
+  } | null;
+}
+
+export async function findEnabledMonitoringConfigs(): Promise<
+  MonitoringConfigWithDevice[]
+> {
+  const { data, error } = await supabase
+    .from('monitoring_configs')
+    .select(`
+      id,
+      device_id,
+      method,
+      enabled,
+      interval_seconds,
+      timeout_seconds,
+      retries,
+      configuration,
+      device:devices (
+        id,
+        name,
+        ip_address,
+        status
+      )
+    `)
+    .eq('enabled', true);
+
+  if (error) {
+    console.error(
+      'findEnabledMonitoringConfigs error:',
+      error
+    );
+
+    throw new Error(error.message);
+  }
+
+  console.log(
+    'Enabled monitoring configs:',
+    data?.length ?? 0
+  );
+
+  return (data ?? []).map((config: any) => {
+    const deviceData = config.device;
+
+    const device = Array.isArray(deviceData)
+      ? (deviceData[0] ?? null)
+      : deviceData;
+
+    return {
+      id: config.id,
+      device_id: config.device_id,
+      method: config.method,
+      enabled: config.enabled,
+      interval_seconds: config.interval_seconds,
+      timeout_seconds: config.timeout_seconds,
+      retries: config.retries,
+      configuration: config.configuration,
+      device
+    };
+  });
+}
+
+export async function updateDeviceStatus(
+  deviceId: string,
+  status: string,
+  lastSeenAt: string | null
+) {
+  const { error } = await supabase
+    .from('devices')
+    .update({
+      status,
+      last_seen_at: lastSeenAt
+    })
+    .eq('id', deviceId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function createMonitoringRecord(
+  deviceId: string,
+  monitoringConfigId: string,
+  result: {
+    status: string;
+    latencyMs: number | null;
+    packetLossPercent: number;
+    checkedAt: string;
+    message?: string;
+  }
+) {
+  const { data, error } = await supabase
+    .from('monitoring_records')
+    .insert({
+      device_id: deviceId,
+      monitoring_config_id: monitoringConfigId,
+      checked_at: result.checkedAt,
+      status: result.status,
+      latency_ms: result.latencyMs,
+      packet_loss_percent: result.packetLossPercent,
+      error_message: result.message ?? null,
+      raw_data: {
+        provider: 'SIMULATION',
+        message: result.message ?? null
+      }
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
