@@ -1,7 +1,8 @@
 import {
   findEnabledMonitoringConfigs,
   updateDeviceStatus,
-  createMonitoringRecord
+  createMonitoringRecord,
+  MonitoringConfigWithDevice
 } from '../repositories/monitoring.repository.js';
 
 import {
@@ -14,12 +15,14 @@ import {
 
 const simulationProvider = new SimulationProvider();
 
-export async function runMonitoringCycle() {
-  const configs = await findEnabledMonitoringConfigs();
-
+export async function runMonitoringCycle(
+  configs?: MonitoringConfigWithDevice[]
+) {
+  const monitoringConfigs = configs ?? await findEnabledMonitoringConfigs();
+  
   const results = [];
 
-  for (const config of configs) {
+  for (const config of monitoringConfigs) {
     if (!config.device) {
       continue;
     }

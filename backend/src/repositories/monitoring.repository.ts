@@ -75,6 +75,45 @@ export async function findEnabledMonitoringConfigs(): Promise<
   });
 }
 
+export async function findDueMonitoringConfigs() {
+  const configs = await findEnabledMonitoringConfigs();
+
+  const now = Date.now();
+
+  const dueConfigs = [];
+
+  for (const config of configs) {
+    const { data: latestRecord, error } = await supabase
+      .from('monitoring_records')
+      .select('checked_at')
+      .eq('monitoring_config_id', config.id)
+      .order('checked_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    // Never checked before → immediately due
+    if (!latestRecord) {
+      dueConfigs.push(config);
+      continue;
+    }
+
+    const lastChecked = new Date(latestRecord.checked_at).getTime();
+
+    const elapsedSeconds =
+      (now - lastChecked) / 1000;
+
+    if (elapsedSeconds >= config.interval_seconds) {
+      dueConfigs.push(config);
+    }
+  }
+
+  return dueConfigs;
+}
+
 export async function updateDeviceStatus(
   deviceId: string,
   status: string,

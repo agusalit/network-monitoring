@@ -6,6 +6,9 @@ import cors from 'cors';
 import deviceRoutes from './routes/device.routes.js';
 import topologyRoutes from './routes/topology.routes.js';
 import monitoringRoutes from './routes/monitoring.routes.js';
+import {
+  startMonitoringScheduler
+} from './monitoring/monitoring.scheduler.js';
 
 const app = express();
 
@@ -30,4 +33,6 @@ app.listen(PORT, () => {
   console.log(
     `Network Monitoring API running on http://localhost:${PORT}`
   );
+
+  startMonitoringScheduler();
 });
