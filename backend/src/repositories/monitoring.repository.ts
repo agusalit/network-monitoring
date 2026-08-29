@@ -167,3 +167,27 @@ export async function createMonitoringRecord(
 
   return data;
 }
+
+export async function findPreviousMonitoringRecord(
+  monitoringConfigId: string
+) {
+  const { data, error } = await supabase
+    .from('monitoring_records')
+    .select(`
+      id,
+      status,
+      checked_at,
+      latency_ms,
+      packet_loss_percent,
+      error_message
+    `)
+    .eq('monitoring_config_id', monitoringConfigId)
+    .order('checked_at', { ascending: false })
+    .limit(2);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data?.[1] ?? null;
+}

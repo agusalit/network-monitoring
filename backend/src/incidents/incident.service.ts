@@ -5,9 +5,14 @@ import {
   resolveIncident
 } from '../repositories/incident.repository.js';
 
+import {
+  findPreviousMonitoringRecord
+} from '../repositories/monitoring.repository.js';
+
 interface MonitoringIncidentResult {
   deviceId: string;
   deviceName: string;
+  monitoringConfigId: string;
   status: string;
   checkedAt: string;
   message?: string;
@@ -19,12 +24,28 @@ export async function processMonitoringResult(
   const activeIncident =
     await findActiveIncidentByDevice(result.deviceId);
 
-  const isProblem =
-    result.status === 'WARNING' ||
+  const isWarning =
+    result.status === 'WARNING';
+
+  const isOffline =
     result.status === 'OFFLINE';
 
-  // Device is healthy
-  if (!isProblem) {
+  const isHealthy =
+    result.status === 'ONLINE';
+
+  const previousRecord =
+    await findPreviousMonitoringRecord(
+      result.monitoringConfigId
+    );
+
+  const previousWasWarning =
+    previousRecord?.status === 'WARNING';
+
+  const warningThresholdReached =
+    isWarning && previousWasWarning;
+
+  // Healthy device
+  if (isHealthy) {
     if (activeIncident) {
       await resolveIncident(
         activeIncident.id,
@@ -47,46 +68,68 @@ export async function processMonitoringResult(
     };
   }
 
-  // Device has a problem and already has an active incident
-  if (activeIncident) {
-    await updateIncident(
-      activeIncident.id,
-      {
-        severity: result.status,
-        title: result.message ?? 'Network issue detected',
-        description:
-          result.message ??
-          `${result.deviceName} is experiencing a network issue.`
-      }
-    );
-
+  // Warning requires two consecutive observations
+  if (isWarning && !warningThresholdReached) {
     console.log(
-      `[Incident] Updated incident ${activeIncident.id} for ${result.deviceName}`
+      `[Incident] Warning observed for ${result.deviceName}, waiting for confirmation`
     );
 
     return {
-      action: 'UPDATED',
-      incidentId: activeIncident.id
+      action: 'OBSERVED',
+      incidentId: null
     };
   }
 
-  // Device has a problem but no active incident exists
-  const incident = await createIncident({
-    deviceId: result.deviceId,
-    severity: result.status,
-    title: result.message ?? 'Network issue detected',
-    description:
-      result.message ??
-      `${result.deviceName} is experiencing a network issue.`,
-    startedAt: result.checkedAt
-  });
+  // WARNING threshold reached or device is OFFLINE
+  if (warningThresholdReached || isOffline) {
+    if (activeIncident) {
+      await updateIncident(
+        activeIncident.id,
+        {
+          severity: result.status,
+          title:
+            result.message ??
+            'Network issue detected',
+          description:
+            result.message ??
+            `${result.deviceName} is experiencing a network issue.`
+        }
+      );
 
-  console.log(
-    `[Incident] Created incident ${incident.id} for ${result.deviceName}`
-  );
+      console.log(
+        `[Incident] Updated incident ${activeIncident.id} for ${result.deviceName}`
+      );
+
+      return {
+        action: 'UPDATED',
+        incidentId: activeIncident.id
+      };
+    }
+
+    const incident = await createIncident({
+      deviceId: result.deviceId,
+      severity: result.status,
+      title:
+        result.message ??
+        'Network issue detected',
+      description:
+        result.message ??
+        `${result.deviceName} is experiencing a network issue.`,
+      startedAt: result.checkedAt
+    });
+
+    console.log(
+      `[Incident] Created incident ${incident.id} for ${result.deviceName}`
+    );
+
+    return {
+      action: 'CREATED',
+      incidentId: incident.id
+    };
+  }
 
   return {
-    action: 'CREATED',
-    incidentId: incident.id
+    action: 'NONE',
+    incidentId: null
   };
 }

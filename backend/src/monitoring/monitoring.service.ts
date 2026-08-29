@@ -73,6 +73,7 @@ export async function runMonitoringCycle(
     const incident = await processMonitoringResult({
       deviceId: target.id,
       deviceName: target.name,
+      monitoringConfigId: config.id,
       status: result.status,
       checkedAt: result.checkedAt,
       message: result.message
