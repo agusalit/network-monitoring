@@ -4,6 +4,10 @@ import {
   runMonitoringCycle
 } from '../monitoring/monitoring.service.js';
 
+import {
+  setAP203SimulationWarning
+} from '../monitoring/monitoring.service.js'
+
 export async function runMonitoring(
   _req: Request,
   res: Response
@@ -26,4 +30,18 @@ export async function runMonitoring(
         : String(error)
     });
   }
+}
+
+export async function setAP203Simulation(
+  req: any,
+  res: any,
+){
+  const enabled = req.body?.warning === true;
+
+  setAP203SimulationWarning(enabled);
+
+  res.json({
+    status: 'ok',
+    ap203Warning: enabled
+  });
 }

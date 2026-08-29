@@ -13,6 +13,10 @@ import {
   SimulationProvider
 } from './simulation.provider.js';
 
+import {
+  processMonitoringResult
+} from '../incidents/incident.service.js'
+
 const simulationProvider = new SimulationProvider();
 
 export async function runMonitoringCycle(
@@ -66,13 +70,28 @@ export async function runMonitoringCycle(
       result
     );
 
+    const incident = await processMonitoringResult({
+      deviceId: target.id,
+      deviceName: target.name,
+      status: result.status,
+      checkedAt: result.checkedAt,
+      message: result.message
+    });
+
     results.push({
       deviceId: target.id,
       deviceName: target.name,
       result,
-      recordId: record.id
+      recordId: record.id,
+      incident
     });
   }
 
   return results;
+}
+
+export function setAP203SimulationWarning(
+  enabled: boolean
+){
+  simulationProvider.setAP203Warning(enabled);
 }

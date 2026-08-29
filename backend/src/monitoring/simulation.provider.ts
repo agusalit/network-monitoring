@@ -8,13 +8,15 @@ import {
 } from '../types/monitoring.js';
 
 export class SimulationProvider implements MonitoringProvider {
+  private ap203Warning = true;
+
   async check(
     target: MonitoringTarget
   ): Promise<MonitoringResult> {
     const checkedAt = new Date().toISOString();
 
     // AP-203 is our intentionally problematic device.
-    if (target.name === 'AP-203') {
+    if (target.name === 'AP-203' && this.ap203Warning) {
       return {
         status: 'WARNING',
         latencyMs: 180,
@@ -30,5 +32,9 @@ export class SimulationProvider implements MonitoringProvider {
       packetLossPercent: 0,
       checkedAt
     };
+  }
+
+  setAP203Warning(enabled: boolean) {
+    this.ap203Warning = enabled;
   }
 }
