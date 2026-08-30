@@ -148,3 +148,83 @@ export async function getActiveIncidents() {
     };
   });
 }
+
+export async function getLocationHealth() {
+  const { data: locations, error: locationError } =
+    await supabase
+      .from('locations')
+      .select(`
+        id,
+        name,
+        type
+      `)
+      .order('name');
+
+  if (locationError) {
+    throw new Error(locationError.message);
+  }
+
+  const { data: devices, error: deviceError } =
+    await supabase
+      .from('devices')
+      .select(`
+        id,
+        name,
+        status,
+        location_id
+      `);
+
+  if (deviceError) {
+    throw new Error(deviceError.message);
+  }
+
+  return (locations ?? []).map(location => {
+    const locationDevices =
+      (devices ?? []).filter(
+        device =>
+          device.location_id === location.id
+      );
+
+    const total = locationDevices.length;
+
+    const online =
+      locationDevices.filter(
+        device => device.status === 'ONLINE'
+      ).length;
+
+    const warning =
+      locationDevices.filter(
+        device => device.status === 'WARNING'
+      ).length;
+
+    const offline =
+      locationDevices.filter(
+        device => device.status === 'OFFLINE'
+      ).length;
+
+    let health = 'NO_DATA';
+
+    if (offline > 0) {
+      health = 'OFFLINE';
+    } else if (warning > 0) {
+      health = 'WARNING';
+    } else if (online > 0) {
+      health = 'ONLINE';
+    }
+
+    return {
+      id: location.id,
+      name: location.name,
+      type: location.type,
+
+      health,
+
+      devices: {
+        total,
+        online,
+        warning,
+        offline
+      }
+    };
+  });
+}

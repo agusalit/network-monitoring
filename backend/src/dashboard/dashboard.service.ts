@@ -1,7 +1,8 @@
 import {
   getDashboardSummary,
   getDashboardDevices,
-  getActiveIncidents
+  getActiveIncidents,
+  getLocationHealth
 } from '../repositories/dashboard.repository.js';
 
 export async function getDashboardData() {
@@ -18,4 +19,8 @@ export async function getDashboardDevicesData() {
 
 export async function getActiveIncidentsData(){
     return await getActiveIncidents();
+}
+
+export async function getLocationHealthData(){
+    return await getLocationHealth();
 }

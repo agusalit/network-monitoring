@@ -6,7 +6,8 @@ import {
 import {
   getDashboardData,
   getDashboardDevicesData,
-  getActiveIncidentsData
+  getActiveIncidentsData,
+  getLocationHealthData
 } from '../dashboard/dashboard.service.js';
 
 export async function getDashboard(
@@ -79,6 +80,31 @@ export async function getActiveIncidents(
     res.status(500).json({
       status: 'error',
       message: 'Failed to load active incidents'
+    });
+  }
+}
+
+export async function getLocationHealth(
+  _req: Request,
+  res: Response
+) {
+  try {
+    const locations =
+      await getLocationHealthData();
+
+    res.json({
+      status: 'ok',
+      data: locations
+    });
+  } catch (error) {
+    console.error(
+      'Dashboard location health request failed:',
+      error
+    );
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to load location health'
     });
   }
 }
