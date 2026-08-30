@@ -9,6 +9,7 @@ import monitoringRoutes from './routes/monitoring.routes.js';
 import {
   startMonitoringScheduler
 } from './monitoring/monitoring.scheduler.js';
+import dashboardRoutes from './routes/dashboard.routes.js';
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/devices', deviceRoutes);
 app.use('/api/topology', topologyRoutes);
 app.use('/api/monitoring', monitoringRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.listen(PORT, () => {
   console.log(
