@@ -5,12 +5,16 @@ import {
 } from '../services/api.js';
 
 import type {
-  DashboardSummary
+  DashboardSummary as Summary
 } from '../types/dashboard.js';
+
+import DashboardSummary from '../components/DashboardSummary.js';
+
+import Sidebar from '../components/Sidebar.js';
 
 function Dashboard() {
   const [summary, setSummary] =
-    useState<DashboardSummary | null>(null);
+    useState<Summary | null>(null);
 
   const [loading, setLoading] =
     useState(true);
@@ -25,7 +29,9 @@ function Dashboard() {
       })
       .catch(error => {
         console.error(error);
-        setError('Failed to load dashboard data.');
+        setError(
+          'Failed to load dashboard data.'
+        );
       })
       .finally(() => {
         setLoading(false);
@@ -33,26 +39,49 @@ function Dashboard() {
   }, []);
 
   if (loading) {
-    return <p>Loading dashboard...</p>;
+    return (
+      <div className="page-loading">
+        Loading dashboard...
+      </div>
+    );
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return (
+      <div className="page-error">
+        {error}
+      </div>
+    );
+  }
+
+  if (!summary) {
+    return null;
   }
 
   return (
-    <main>
-      <h1>Network Monitoring</h1>
+    <div className="app-layout">
+      <Sidebar />
 
-      {summary && (
-        <div>
-          <p>Total Devices: {summary.total}</p>
-          <p>Online: {summary.online}</p>
-          <p>Warning: {summary.warning}</p>
-          <p>Offline: {summary.offline}</p>
-        </div>
-      )}
-    </main>
+      <main className="main-content">
+        <header className="page-header">
+          <div>
+            <h1>Network Monitoring</h1>
+            <p>
+              Property network overview
+            </p>
+          </div>
+
+          <div className="system-status">
+            <span className="status-dot" />
+            Monitoring Active
+          </div>
+        </header>
+
+        <DashboardSummary
+          summary={summary}
+        />
+      </main>
+    </div>
   );
 }
 
