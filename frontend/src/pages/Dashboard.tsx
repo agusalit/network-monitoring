@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 
 import {
   getDashboardSummary,
-  getDashboardLocations
+  getDashboardLocations,
+  getDashboardIncidents
 } from '../services/api.js';
 
 import type {
   DashboardSummary as Summary,
-  DashboardLocation
+  DashboardLocation,
+  DashboardIncident
 } from '../types/dashboard.js';
 
 import DashboardSummary from '../components/DashboardSummary.js';
@@ -15,6 +17,8 @@ import DashboardSummary from '../components/DashboardSummary.js';
 import Sidebar from '../components/Sidebar.js';
 
 import LocationHealth from '../components/LocationHealth.js';
+
+import IncidentList from '../components/IncidentList.js';
 
 function Dashboard() {
   const [summary, setSummary] =
@@ -29,22 +33,36 @@ function Dashboard() {
   const [locations, setLocations] =
     useState<DashboardLocation[]>([]);
 
+  const [incidents, setIncidents] =
+    useState<DashboardIncident[]>([]);
+
   useEffect(() => {
-  Promise.all([
-    getDashboardSummary(),
-    getDashboardLocations()
-  ])
-    .then(([summaryResponse, locationResponse]) => {
-      setSummary(summaryResponse.data.summary);
-      setLocations(locationResponse.data);
-    })
-    .catch(error => {
-      console.error(error);
-      setError('Failed to load dashboard data.');
-    })
-    .finally(() => {
-      setLoading(false);
-    });
+    Promise.all([
+      getDashboardSummary(),
+      getDashboardLocations(),
+      getDashboardIncidents()
+    ])
+      .then(([
+        summaryResponse,
+        locationResponse,
+        incidentResponse
+      ]) => {
+        setSummary(summaryResponse.data.summary);
+
+        setLocations(locationResponse.data);
+
+        setIncidents(incidentResponse.data);
+      })
+      .catch(error => {
+        console.error(error);
+
+        setError(
+          'Failed to load dashboard data.'
+        );
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   if (loading) {
@@ -92,6 +110,10 @@ function Dashboard() {
 
         <LocationHealth
           locations={locations}
+        />
+
+        <IncidentList
+          incidents={incidents}
         />
       </main>
     </div>
