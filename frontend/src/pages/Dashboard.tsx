@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
 
 import {
-  getDashboardSummary
+  getDashboardSummary,
+  getDashboardLocations
 } from '../services/api.js';
 
 import type {
-  DashboardSummary as Summary
+  DashboardSummary as Summary,
+  DashboardLocation
 } from '../types/dashboard.js';
 
 import DashboardSummary from '../components/DashboardSummary.js';
 
 import Sidebar from '../components/Sidebar.js';
+
+import LocationHealth from '../components/LocationHealth.js';
 
 function Dashboard() {
   const [summary, setSummary] =
@@ -22,20 +26,25 @@ function Dashboard() {
   const [error, setError] =
     useState<string | null>(null);
 
+  const [locations, setLocations] =
+    useState<DashboardLocation[]>([]);
+
   useEffect(() => {
-    getDashboardSummary()
-      .then(response => {
-        setSummary(response.data.summary);
-      })
-      .catch(error => {
-        console.error(error);
-        setError(
-          'Failed to load dashboard data.'
-        );
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+  Promise.all([
+    getDashboardSummary(),
+    getDashboardLocations()
+  ])
+    .then(([summaryResponse, locationResponse]) => {
+      setSummary(summaryResponse.data.summary);
+      setLocations(locationResponse.data);
+    })
+    .catch(error => {
+      console.error(error);
+      setError('Failed to load dashboard data.');
+    })
+    .finally(() => {
+      setLoading(false);
+    });
   }, []);
 
   if (loading) {
@@ -79,6 +88,10 @@ function Dashboard() {
 
         <DashboardSummary
           summary={summary}
+        />
+
+        <LocationHealth
+          locations={locations}
         />
       </main>
     </div>
