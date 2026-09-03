@@ -3,13 +3,15 @@ import { useEffect, useState } from 'react';
 import {
   getDashboardSummary,
   getDashboardLocations,
-  getDashboardIncidents
+  getDashboardIncidents,
+  getDashboardDevices
 } from '../services/api.js';
 
 import type {
   DashboardSummary as Summary,
   DashboardLocation,
-  DashboardIncident
+  DashboardIncident,
+  DashboardDevice
 } from '../types/dashboard.js';
 
 import DashboardSummary from '../components/DashboardSummary.js';
@@ -19,6 +21,8 @@ import Sidebar from '../components/Sidebar.js';
 import LocationHealth from '../components/LocationHealth.js';
 
 import IncidentList from '../components/IncidentList.js';
+
+import DeviceStatusTable from '../components/DeviceStatusTable.js';
 
 function Dashboard() {
   const [summary, setSummary] =
@@ -36,22 +40,29 @@ function Dashboard() {
   const [incidents, setIncidents] =
     useState<DashboardIncident[]>([]);
 
+  const [devices, setDevices] =
+    useState<DashboardDevice[]>([]);
+
   useEffect(() => {
     Promise.all([
       getDashboardSummary(),
       getDashboardLocations(),
-      getDashboardIncidents()
+      getDashboardIncidents(),
+      getDashboardDevices()
     ])
       .then(([
         summaryResponse,
         locationResponse,
-        incidentResponse
+        incidentResponse,
+        devicesResponse
       ]) => {
         setSummary(summaryResponse.data.summary);
 
         setLocations(locationResponse.data);
 
         setIncidents(incidentResponse.data);
+
+        setDevices(devicesResponse.data);
       })
       .catch(error => {
         console.error(error);
@@ -114,6 +125,10 @@ function Dashboard() {
 
         <IncidentList
           incidents={incidents}
+        />
+
+        <DeviceStatusTable
+          devices={devices}
         />
       </main>
     </div>
