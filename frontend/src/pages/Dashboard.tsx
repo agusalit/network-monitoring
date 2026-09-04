@@ -25,6 +25,12 @@ import IncidentList from '../components/IncidentList.js';
 import DeviceStatusTable from '../components/DeviceStatusTable.js';
 
 function Dashboard() {
+  const [loading, setLoading] = 
+    useState(true);
+  
+  const [refreshing, setRefreshing] =
+    useState(false);
+
   const [summary, setSummary] =
     useState<Summary | null>(null);
 
@@ -44,36 +50,52 @@ function Dashboard() {
     useState<DashboardDevice[]>([]);
 
   useEffect(() => {
-    Promise.all([
-      getDashboardSummary(),
-      getDashboardLocations(),
-      getDashboardIncidents(),
-      getDashboardDevices()
-    ])
-      .then(([
-        summaryResponse,
-        locationResponse,
-        incidentResponse,
-        devicesResponse
-      ]) => {
+    async function loadDashboard(
+      isInitialLoad = false
+    ) {
+      try {
+        if (isInitialLoad) {
+          setLoading(true);
+        } else {
+          setRefreshing(true);
+        }
+
+        const [
+          summaryResponse,
+          locationsResponse,
+          incidentsResponse,
+          devicesResponse
+        ] = await Promise.all([
+          getDashboardSummary(),
+          getDashboardLocations(),
+          getDashboardIncidents(),
+          getDashboardDevices()
+        ]);
+
         setSummary(summaryResponse.data.summary);
-
-        setLocations(locationResponse.data);
-
-        setIncidents(incidentResponse.data);
-
+        setLocations(locationsResponse.data);
+        setIncidents(incidentsResponse.data);
         setDevices(devicesResponse.data);
-      })
-      .catch(error => {
-        console.error(error);
 
-        setError(
-          'Failed to load dashboard data.'
-        );
-      })
-      .finally(() => {
+        setError(null);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to refresh dashboard data.');
+      } finally {
         setLoading(false);
-      });
+        setRefreshing(false);
+      }
+    }
+
+    loadDashboard(true);
+
+    const interval = setInterval(() => {
+      loadDashboard(false);
+    }, 30_000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   if (loading) {
