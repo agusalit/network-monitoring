@@ -34,9 +34,6 @@ function Dashboard() {
   const [summary, setSummary] =
     useState<Summary | null>(null);
 
-  const [loading, setLoading] =
-    useState(true);
-
   const [error, setError] =
     useState<string | null>(null);
 
@@ -133,7 +130,11 @@ function Dashboard() {
 
           <div className="system-status">
             <span className="status-dot" />
-            Monitoring Active
+            {refreshing &&(
+              <span className="refresh-status">
+                Refreshing...
+              </span>
+            )}
           </div>
         </header>
 
