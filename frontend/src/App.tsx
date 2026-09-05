@@ -6,6 +6,8 @@ import {
 
 import Dashboard from './pages/Dashboard';
 
+import DeviceDetail from './pages/DeviceDetail.js';
+
 function App() {
   return (
     <BrowserRouter>
@@ -19,7 +21,12 @@ function App() {
           path="/dashboard"
           element={<Dashboard />}
         />
-      </Routes>
+
+        <Route 
+          path="/devices/:id"
+          element={<DeviceDetail />}
+        />
+      </Routes>clear
     </BrowserRouter>
   );
 }

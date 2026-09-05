@@ -45,3 +45,65 @@ export async function getDashboardLocations() {
     data: import('../types/dashboard.js').DashboardLocation[];
   }>('/dashboard/locations');
 }
+
+export async function getDeviceById(id: string) {
+  return request<{
+    status: string;
+    data: {
+      id: string;
+      name: string;
+      hostname: string | null;
+      device_type: string;
+      vendor: string | null;
+      model: string | null;
+      ip_address: string;
+      mac_address: string | null;
+      status: 'ONLINE' | 'WARNING' | 'OFFLINE';
+      description: string | null;
+      enabled: boolean;
+      last_seen_at: string | null;
+      created_at: string;
+      updated_at: string;
+
+      location: {
+        id: string;
+        name: string;
+        type: string;
+        floor_number: number | null;
+
+        area: {
+          id: string;
+          name: string;
+          type: string;
+
+          property: {
+            id: string;
+            name: string;
+          } | null;
+        } | null;
+      } | null;
+
+      monitoring_configs: {
+        id: string;
+        method: string;
+        enabled: boolean;
+        interval_seconds: number;
+        timeout_seconds: number;
+        retries: number;
+        configuration: Record<string, unknown> | null;
+      }[];
+
+      incidents: {
+        id: string;
+        severity: string;
+        title: string;
+        description: string | null;
+        status: string;
+        started_at: string;
+        resolved_at: string | null;
+        created_at: string;
+        updated_at: string;
+      }[];
+    };
+  }>(`/devices/${id}`);
+}
