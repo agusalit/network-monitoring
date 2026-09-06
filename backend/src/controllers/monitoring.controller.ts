@@ -5,6 +5,10 @@ import {
 } from '../monitoring/monitoring.service.js';
 
 import {
+  getMonitoringHistoryByDeviceId
+} from '../monitoring/monitoring.service.js';
+
+import {
   setAP203SimulationWarning
 } from '../monitoring/monitoring.service.js'
 
@@ -28,6 +32,42 @@ export async function runMonitoring(
       message: error instanceof Error
         ? error.message
         : String(error)
+    });
+  }
+}
+
+export async function getMonitoringHistory(
+  req: Request,
+  res: Response
+) {
+  try {
+    const rawId = req.params.id;
+    const deviceId = Array.isArray(rawId)
+      ? rawId[0]
+      : rawId;
+
+    if (!deviceId) {
+      res.status(400).json({
+        status: 'error',
+        message: 'Invalid device id'
+      });
+
+      return;
+    }
+
+    const history =
+      await getMonitoringHistoryByDeviceId(deviceId);
+
+    res.json({
+      status: 'ok',
+      data: history
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to retrieve monitoring history'
     });
   }
 }

@@ -191,3 +191,35 @@ export async function findPreviousMonitoringRecord(
 
   return data?.[1] ?? null;
 }
+
+export async function findMonitoringHistoryByDeviceId(
+  deviceId: string
+) {
+  const { data, error } = await supabase
+    .from('monitoring_records')
+    .select(`
+      id,
+      device_id,
+      monitoring_config_id,
+      checked_at,
+      status,
+      latency_ms,
+      packet_loss_percent,
+      cpu_usage_percent,
+      memory_usage_percent,
+      uptime_seconds,
+      error_message,
+      raw_data,
+      created_at
+    `)
+    .eq('device_id', deviceId)
+    .order('checked_at', {
+      ascending: false
+    });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}

@@ -2,7 +2,8 @@ import {
   findEnabledMonitoringConfigs,
   updateDeviceStatus,
   createMonitoringRecord,
-  MonitoringConfigWithDevice
+  MonitoringConfigWithDevice,
+  findMonitoringHistoryByDeviceId
 } from '../repositories/monitoring.repository.js';
 
 import {
@@ -89,6 +90,15 @@ export async function runMonitoringCycle(
   }
 
   return results;
+}
+
+export async function getMonitoringHistoryByDeviceId(
+  deviceId: string
+) {
+  const history =
+    await findMonitoringHistoryByDeviceId(deviceId);
+
+  return history;
 }
 
 export function setAP203SimulationWarning(
