@@ -443,6 +443,14 @@ body {
   font-weight: 600;
 }
 
+.device-row {
+  cursor: pointer;
+}
+
+.device-row:hover {
+  background: #f9fafb;
+}
+
 .device-status {
   display: inline-flex;
   align-items: center;

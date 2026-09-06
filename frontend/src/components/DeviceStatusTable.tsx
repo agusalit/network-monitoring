@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 import type {
   DashboardDevice
 } from '../types/dashboard.js';
@@ -7,14 +9,14 @@ interface Props {
 }
 
 function DeviceStatusTable({ devices }: Props) {
+  const navigate = useNavigate();
+
   return (
     <section className="dashboard-section">
       <div className="section-header">
         <div>
           <h2>Device Status</h2>
-          <p>
-            Current condition of monitored network devices
-          </p>
+          <p>Current condition of monitored network devices</p>
         </div>
       </div>
 
@@ -31,14 +33,16 @@ function DeviceStatusTable({ devices }: Props) {
 
           <tbody>
             {devices.map(device => (
-              <tr key={device.id}>
+              <tr
+                key={device.id}
+                className="device-row"
+                onClick={() => navigate(`/devices/${device.id}`)}
+              >
                 <td>
                   <strong>{device.name}</strong>
                 </td>
 
-                <td>
-                  {device.ipAddress}
-                </td>
+                <td>{device.ipAddress}</td>
 
                 <td>
                   {device.location?.name ?? 'Unknown'}
