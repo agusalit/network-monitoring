@@ -107,3 +107,28 @@ export async function getDeviceById(id: string) {
     };
   }>(`/devices/${id}`);
 }
+
+export async function getMonitoringHistory(
+  deviceId: string
+) {
+  return request<{
+    status: string;
+    data: {
+      id: string;
+      device_id: string;
+      monitoring_config_id: string | null;
+      checked_at: string;
+      status: 'ONLINE' | 'WARNING' | 'OFFLINE';
+      latency_ms: number | null;
+      packet_loss_percent: number | null;
+      cpu_usage_percent: number | null;
+      memory_usage_percent: number | null;
+      uptime_seconds: number | null;
+      error_message: string | null;
+      raw_data: Record<string, unknown> | null;
+      created_at: string;
+    }[];
+  }>(
+    `/monitoring/devices/${deviceId}/history`
+  );
+}

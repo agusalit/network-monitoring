@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { getDeviceById } from '../services/api.js';
+import { 
+  getDeviceById,
+  getMonitoringHistory 
+} from '../services/api.js';
 
 function DeviceDetail() {
   const { id } = useParams<{ id: string }>();
@@ -9,6 +12,7 @@ function DeviceDetail() {
   const [device, setDevice] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadDevice() {
@@ -21,6 +25,9 @@ function DeviceDetail() {
       try {
         const response = await getDeviceById(id);
         setDevice(response.data);
+
+        const historyResponse = await getMonitoringHistory(id);
+        setHistory(historyResponse.data);
       } catch (err) {
         console.error(err);
         setError('Failed to load device.');
@@ -185,6 +192,79 @@ function DeviceDetail() {
               </span>
             </div>
           ))
+        )}
+      </section>
+
+      <section className="dashboard-section">
+        <div className="section-header">
+          <div>
+            <h2>Monitoring History</h2>
+            <p>Recent monitoring results for this device</p>
+          </div>
+        </div>
+
+        {history.length === 0 ? (
+          <p>No monitoring history available.</p>
+        ) : (
+          <div className="device-table-wrapper">
+            <table className="device-table">
+              <thead>
+                <tr>
+                  <th>Checked At</th>
+                  <th>Status</th>
+                  <th>Latency</th>
+                  <th>Packet Loss</th>
+                  <th>CPU</th>
+                  <th>Memory</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {history.map(record => (
+                  <tr key={record.id}>
+                    <td>
+                      {new Date(
+                        record.checked_at
+                      ).toLocaleString()}
+                    </td>
+
+                    <td>
+                      <span
+                        className={`device-status ${record.status.toLowerCase()}`}
+                      >
+                        <span className="status-dot" />
+                        {record.status}
+                      </span>
+                    </td>
+
+                    <td>
+                      {record.latency_ms !== null
+                        ? `${record.latency_ms} ms`
+                        : '-'}
+                    </td>
+
+                    <td>
+                      {record.packet_loss_percent !== null
+                        ? `${record.packet_loss_percent}%`
+                        : '-'}
+                    </td>
+
+                    <td>
+                      {record.cpu_usage_percent !== null
+                        ? `${record.cpu_usage_percent}%`
+                        : '-'}
+                    </td>
+
+                    <td>
+                      {record.memory_usage_percent !== null
+                        ? `${record.memory_usage_percent}%`
+                        : '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
 
