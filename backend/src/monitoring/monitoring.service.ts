@@ -93,10 +93,14 @@ export async function runMonitoringCycle(
 }
 
 export async function getMonitoringHistoryByDeviceId(
-  deviceId: string
+  deviceId: string,
+  limit: number = 50
 ) {
   const history =
-    await findMonitoringHistoryByDeviceId(deviceId);
+    await findMonitoringHistoryByDeviceId(
+      deviceId,
+      limit
+    );
 
   return history;
 }

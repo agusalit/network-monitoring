@@ -193,7 +193,8 @@ export async function findPreviousMonitoringRecord(
 }
 
 export async function findMonitoringHistoryByDeviceId(
-  deviceId: string
+  deviceId: string,
+  limit: number = 50
 ) {
   const { data, error } = await supabase
     .from('monitoring_records')
@@ -215,7 +216,8 @@ export async function findMonitoringHistoryByDeviceId(
     .eq('device_id', deviceId)
     .order('checked_at', {
       ascending: false
-    });
+    })
+    .limit(limit);
 
   if (error) {
     throw new Error(error.message);

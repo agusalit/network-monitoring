@@ -55,8 +55,27 @@ export async function getMonitoringHistory(
       return;
     }
 
+    const rawLimit = req.query.limit;
+
+    let limit = 50;
+
+    if (typeof rawLimit === 'string') {
+      const parsedLimit = Number(rawLimit);
+
+      if (
+        Number.isInteger(parsedLimit) &&
+        parsedLimit > 0 &&
+        parsedLimit <= 100
+      ) {
+        limit = parsedLimit;
+      }
+    }
+
     const history =
-      await getMonitoringHistoryByDeviceId(deviceId);
+      await getMonitoringHistoryByDeviceId(
+        deviceId,
+        limit
+      );
 
     res.json({
       status: 'ok',
