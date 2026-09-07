@@ -10,6 +10,7 @@ import {
   startMonitoringScheduler
 } from './monitoring/monitoring.scheduler.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
+import locationRoutes from './routes/location.routes.js';
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/devices', deviceRoutes);
 app.use('/api/topology', topologyRoutes);
 app.use('/api/monitoring', monitoringRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/locations', locationRoutes);
 
 app.listen(PORT, () => {
   console.log(
