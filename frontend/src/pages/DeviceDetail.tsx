@@ -6,6 +6,8 @@ import {
   getMonitoringHistory 
 } from '../services/api.js';
 
+import PerformanceChart from '../components/PerformanceChart.js';
+
 function DeviceDetail() {
   const { id } = useParams<{ id: string }>();
 
@@ -194,6 +196,8 @@ function DeviceDetail() {
           ))
         )}
       </section>
+
+      <PerformanceChart records={history} />
 
       <section className="dashboard-section">
         <div className="section-header">
