@@ -108,6 +108,57 @@ export async function getDeviceById(id: string) {
   }>(`/devices/${id}`);
 }
 
+export async function getLocationById(id: string) {
+  return request<{
+    status: string;
+    data: {
+      location: {
+        id: string;
+        name: string;
+        type: string;
+        floor_number: number | null;
+
+        area: {
+          id: string;
+          name: string;
+          type: string;
+
+          property: {
+            id: string;
+            name: string;
+          } | null;
+        } | null;
+      };
+
+      health: 'ONLINE' | 'WARNING' | 'OFFLINE' | 'NO_DATA';
+
+      summary: {
+        total: number;
+        online: number;
+        warning: number;
+        offline: number;
+      };
+
+      devices: {
+        id: string;
+        name: string;
+        hostname: string | null;
+        device_type: string;
+        vendor: string | null;
+        model: string | null;
+        ip_address: string;
+        mac_address: string | null;
+        status: 'ONLINE' | 'WARNING' | 'OFFLINE';
+        description: string | null;
+        enabled: boolean;
+        last_seen_at: string | null;
+        created_at: string;
+        updated_at: string;
+      }[];
+    };
+  }>(`/locations/${id}`);
+}
+
 export async function getMonitoringHistory(
   deviceId: string
 ) {

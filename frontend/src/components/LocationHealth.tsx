@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 import type {
   DashboardLocation
 } from '../types/dashboard.js';
@@ -7,6 +9,8 @@ interface Props {
 }
 
 function LocationHealth({ locations }: Props) {
+  const navigate = useNavigate();
+
   return (
     <section className="dashboard-section">
       <div className="section-header">
@@ -21,6 +25,7 @@ function LocationHealth({ locations }: Props) {
           <div
             key={location.id}
             className="location-card"
+            onClick={() => navigate(`/locations/${location.id}`)}
           >
             <div className="location-card-header">
               <div>

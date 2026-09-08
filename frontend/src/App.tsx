@@ -8,6 +8,8 @@ import Dashboard from './pages/Dashboard';
 
 import DeviceDetail from './pages/DeviceDetail.js';
 
+import LocationDetail from './pages/LocationDetail.js';
+
 function App() {
   return (
     <BrowserRouter>
@@ -25,6 +27,11 @@ function App() {
         <Route 
           path="/devices/:id"
           element={<DeviceDetail />}
+        />
+
+        <Route
+          path="/locations/:id"
+          element={<LocationDetail />}
         />
       </Routes>clear
     </BrowserRouter>
