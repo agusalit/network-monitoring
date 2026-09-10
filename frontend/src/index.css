@@ -439,6 +439,11 @@ body {
   background: #f9fafb;
 }
 
+.device-table .device-row {
+  display: table-row;
+  cursor: pointer;
+}
+
 .device-table td strong {
   color: #111827;
   font-weight: 600;
@@ -1158,5 +1163,62 @@ body {
 @media (max-width: 650px) {
   .location-overview-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+.device-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.device-search {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+
+.device-search:focus {
+  border-color: #2563eb;
+}
+
+.device-status-filter {
+  width: 160px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+}
+
+.device-status-filter:focus {
+  border-color: #2563eb;
+}
+
+.device-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: #64748b;
+}
+
+.device-result-count {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .device-filters {
+    flex-direction: column;
+  }
+
+  .device-status-filter {
+    width: 100%;
   }
 }
