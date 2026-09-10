@@ -6,9 +6,11 @@ import {
 
 import Dashboard from './pages/Dashboard';
 
-import Locations from './pages/Locations.js';
+import Devices from './pages/Devices.js';
 
 import DeviceDetail from './pages/DeviceDetail.js';
+
+import Locations from './pages/Locations.js';
 
 import LocationDetail from './pages/LocationDetail.js';
 
@@ -27,13 +29,18 @@ function App() {
         />
 
         <Route
-          path="/locations"
-          element={<Locations />}
+          path="/devices"
+          element={<Devices />}
         />
 
         <Route 
           path="/devices/:id"
           element={<DeviceDetail />}
+        />
+
+        <Route
+          path="/locations"
+          element={<Locations />}
         />
 
         <Route
