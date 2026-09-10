@@ -1119,6 +1119,22 @@ body {
   font-size: 16px;
 }
 
+@media (max-width: 1100px) {
+  .location-overview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .location-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .location-overview-devices {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 /* Health badge */
 
 .health-badge {
