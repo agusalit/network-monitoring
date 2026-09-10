@@ -6,6 +6,8 @@ import {
 
 import Dashboard from './pages/Dashboard';
 
+import Locations from './pages/Locations.js';
+
 import DeviceDetail from './pages/DeviceDetail.js';
 
 import LocationDetail from './pages/LocationDetail.js';
@@ -22,6 +24,11 @@ function App() {
         <Route
           path="/dashboard"
           element={<Dashboard />}
+        />
+
+        <Route
+          path="/locations"
+          element={<Locations />}
         />
 
         <Route 
