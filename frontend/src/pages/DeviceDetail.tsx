@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { 
   getDeviceById,
@@ -10,6 +10,7 @@ import PerformanceChart from '../components/PerformanceChart.js';
 
 function DeviceDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const [device, setDevice] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -61,8 +62,18 @@ function DeviceDetail() {
     <main className="page-content">
       <div className="page-header">
         <div>
+          <button
+            className="back-button"
+            onClick={() => navigate(-1)}
+          >
+            ← Back
+          </button>
           <h1>{device.name}</h1>
-          <p>Device details and monitoring information</p>
+          <p>
+            {device.device_type}
+            {' · '}
+            {device.ip_address}
+          </p>
         </div>
 
         <span
@@ -137,13 +148,24 @@ function DeviceDetail() {
         </div>
 
         <div className="device-location">
-          <strong>
-            {device.location?.name ?? 'Unknown'}
-          </strong>
+          <div className="location-path">
+            {device.location ? (
+              <button
+                className="location-link"
+                onClick={() =>
+                  navigate(`/locations/${device.location.id}`)
+                }
+              >
+                {device.location.name}
+              </button>
+            ) : (
+              <strong>Unknown</strong>
+            )}
 
-          <span>
-            {device.location?.type ?? '-'}
-          </span>
+            <span>
+              {device.location?.type ?? '-'}
+            </span>
+          </div>
 
           {device.location?.area && (
             <span>
@@ -175,23 +197,42 @@ function DeviceDetail() {
               key={config.id}
               className="monitoring-config"
             >
-              <strong>{config.method}</strong>
+              <div className="monitoring-config-header">
+                <strong>{config.method}</strong>
 
-              <span>
-                {config.enabled ? 'Enabled' : 'Disabled'}
-              </span>
+                <span
+                  className={`config-status ${
+                    config.enabled
+                      ? 'enabled'
+                      : 'disabled'
+                  }`}
+                >
+                  {config.enabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
 
-              <span>
-                Interval: {config.interval_seconds}s
-              </span>
+              <div className="monitoring-config-details">
+                <div>
+                  <span>Interval</span>
+                  <strong>
+                    {config.interval_seconds}s
+                  </strong>
+                </div>
 
-              <span>
-                Timeout: {config.timeout_seconds}s
-              </span>
+                <div>
+                  <span>Timeout</span>
+                  <strong>
+                    {config.timeout_seconds}s
+                  </strong>
+                </div>
 
-              <span>
-                Retries: {config.retries}
-              </span>
+                <div>
+                  <span>Retries</span>
+                  <strong>
+                    {config.retries}
+                  </strong>
+                </div>
+              </div>
             </div>
           ))
         )}
@@ -288,29 +329,44 @@ function DeviceDetail() {
               key={incident.id}
               className="incident-card"
             >
-              <div className="incident-content">
+              <div className="incident-header">
                 <strong>{incident.title}</strong>
 
-                <p>
-                  {incident.description ?? '-'}
-                </p>
-
-                <div className="incident-meta">
-                  <span>
-                    Severity: {incident.severity}
+                <div className="incident-badges">
+                  <span
+                    className={`incident-severity ${incident.severity.toLowerCase()}`}
+                  >
+                    {incident.severity}
                   </span>
 
-                  <span>
-                    Status: {incident.status}
-                  </span>
-
-                  <span>
-                    Started:{' '}
-                    {new Date(
-                      incident.started_at
-                    ).toLocaleString()}
+                  <span
+                    className={`incident-status ${incident.status.toLowerCase()}`}
+                  >
+                    {incident.status}
                   </span>
                 </div>
+              </div>
+
+              <p>
+                {incident.description ?? '-'}
+              </p>
+
+              <div className="incident-meta">
+                <span>
+                  Started:{' '}
+                  {new Date(
+                    incident.started_at
+                  ).toLocaleString()}
+                </span>
+
+                {incident.resolved_at && (
+                  <span>
+                    Resolved:{' '}
+                    {new Date(
+                      incident.resolved_at
+                    ).toLocaleString()}
+                  </span>
+                )}
               </div>
             </div>
           ))

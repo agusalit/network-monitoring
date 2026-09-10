@@ -282,19 +282,14 @@ export default function LocationDetail() {
               >
 
                 <div className="device-main">
-
-                  <strong>
-                    {device.name}
-                  </strong>
+                  <strong>{device.name}</strong>
 
                   <span>
                     {device.ip_address}
                   </span>
-
                 </div>
 
                 <div className="device-meta">
-
                   <span>
                     {device.device_type}
                   </span>
@@ -306,7 +301,6 @@ export default function LocationDetail() {
                   >
                     {device.status}
                   </span>
-
                 </div>
 
               </div>
