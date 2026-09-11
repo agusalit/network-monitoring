@@ -16,6 +16,7 @@ function DeviceDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
+  const [historyLimit, setHistoryLimit] = useState(50);
 
   useEffect(() => {
     async function loadDevice() {
@@ -26,11 +27,12 @@ function DeviceDetail() {
       }
 
       try {
-        const response = await getDeviceById(id);
-        setDevice(response.data);
+        setLoading(true);
 
-        const historyResponse = await getMonitoringHistory(id);
-        setHistory(historyResponse.data);
+        const response = await getDeviceById(id);
+
+        setDevice(response.data);
+        setError(null);
       } catch (err) {
         console.error(err);
         setError('Failed to load device.');
@@ -41,6 +43,27 @@ function DeviceDetail() {
 
     loadDevice();
   }, [id]);
+
+  useEffect(() => {
+    async function loadHistory() {
+      if (!id) {
+        return;
+      }
+
+      try {
+        const response = await getMonitoringHistory(
+          id,
+          historyLimit
+        );
+
+        setHistory(response.data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadHistory();
+  }, [id, historyLimit]);
 
   if (loading) {
     return (
@@ -246,6 +269,21 @@ function DeviceDetail() {
             <h2>Monitoring History</h2>
             <p>Recent monitoring results for this device</p>
           </div>
+        </div>
+        <div className="history-controls">
+          <span>Show recent:</span>
+
+          <select
+            value={historyLimit}
+            onChange={event =>
+              setHistoryLimit(Number(event.target.value))
+            }
+          >
+            <option value={10}>10 records</option>
+            <option value={25}>25 records</option>
+            <option value={50}>50 records</option>
+            <option value={100}>100 records</option>
+          </select>
         </div>
 
         {history.length === 0 ? (

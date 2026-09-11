@@ -160,7 +160,8 @@ export async function getLocationById(id: string) {
 }
 
 export async function getMonitoringHistory(
-  deviceId: string
+  deviceId: string,
+  limit = 50
 ) {
   return request<{
     status: string;
@@ -180,6 +181,6 @@ export async function getMonitoringHistory(
       created_at: string;
     }[];
   }>(
-    `/monitoring/devices/${deviceId}/history`
+    `/monitoring/devices/${deviceId}/history?limit=${limit}`
   );
 }
