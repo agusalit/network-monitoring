@@ -1257,3 +1257,72 @@ body {
   font-size: 14px;
   cursor: pointer;
 }
+
+.incident-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.incident-filter {
+  padding: 8px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  color: #475569;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.incident-filter:hover {
+  background: #f8fafc;
+}
+
+.incident-filter.active {
+  background: #1e293b;
+  color: white;
+  border-color: #1e293b;
+}
+
+.incident-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.incident-clickable {
+  cursor: pointer;
+  transition: box-shadow 0.15s ease,
+              transform 0.15s ease;
+}
+
+.incident-clickable:hover {
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+}
+
+.incident-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: #64748b;
+}
+
+.incident-empty strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #334155;
+}
+
+.incident-empty p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .incident-filters {
+    overflow-x: auto;
+  }
+
+  .incident-filter {
+    white-space: nowrap;
+  }
+}

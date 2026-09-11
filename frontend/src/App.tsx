@@ -14,6 +14,8 @@ import Locations from './pages/Locations.js';
 
 import LocationDetail from './pages/LocationDetail.js';
 
+import Incidents from './pages/Incidents.js';
+
 function App() {
   return (
     <BrowserRouter>
@@ -46,6 +48,11 @@ function App() {
         <Route
           path="/locations/:id"
           element={<LocationDetail />}
+        />
+
+        <Route
+          path="/incidents"
+          element={<Incidents />}
         />
       </Routes>clear
     </BrowserRouter>
