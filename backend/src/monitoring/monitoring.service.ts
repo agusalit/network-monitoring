@@ -16,7 +16,14 @@ import {
 
 import {
   processMonitoringResult
-} from '../incidents/incident.service.js'
+} from '../incidents/incident.service.js';
+
+import {
+  findAllMonitoringConfigs,
+  findMonitoringConfigById,
+  updateMonitoringConfig,
+  MonitoringConfigUpdate
+} from '../repositories/monitoring-config.repository.js';
 
 const simulationProvider = new SimulationProvider();
 
@@ -116,4 +123,21 @@ export function setAP203SimulationWarning(
   enabled: boolean
 ){
   simulationProvider.setAP203Warning(enabled);
+}
+
+export async function getAllMonitoringConfigs() {
+  return findAllMonitoringConfigs();
+}
+
+export async function getMonitoringConfigById(
+  id: string
+) {
+  return findMonitoringConfigById(id);
+}
+
+export async function patchMonitoringConfig(
+  id: string,
+  updates: MonitoringConfigUpdate
+) {
+  return updateMonitoringConfig(id, updates);
 }
