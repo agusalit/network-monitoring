@@ -18,9 +18,106 @@ import {
   patchMonitoringConfig
 } from '../monitoring/monitoring.service.js';
 
-import type {
-  MonitoringConfigUpdate
-} from '../repositories/monitoring-config.repository.js';
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function validateMonitoringConfigUpdate(body: unknown): {
+  valid: boolean;
+  updates?: Record<string, unknown>;
+  error?: string;
+} {
+  if (!isPlainObject(body)) {
+    return {
+      valid: false,
+      error: 'Request body must be a JSON object'
+    };
+  }
+
+  const allowedFields = [
+    'enabled',
+    'interval_seconds',
+    'timeout_seconds',
+    'retries',
+    'configuration'
+  ];
+
+  const unknownFields = Object.keys(body).filter(
+    (field) => !allowedFields.includes(field)
+  );
+
+  if (unknownFields.length > 0) {
+    return {
+      valid: false,
+      error: `Unknown field(s): ${unknownFields.join(', ')}`
+    };
+  }
+
+  if (Object.keys(body).length === 0) {
+    return {
+      valid: false,
+      error: 'At least one field must be provided'
+    };
+  }
+
+  if ('enabled' in body && typeof body.enabled !== 'boolean') {
+    return {
+      valid: false,
+      error: 'enabled must be a boolean'
+    };
+  }
+
+  const positiveIntegerFields = [
+    'interval_seconds',
+    'timeout_seconds'
+  ];
+
+  for (const field of positiveIntegerFields) {
+    if (field in body) {
+      const value = body[field];
+
+      if (
+        typeof value !== 'number' ||
+        !Number.isInteger(value) ||
+        value <= 0
+      ) {
+        return {
+          valid: false,
+          error: `${field} must be a positive integer`
+        };
+      }
+    }
+  }
+
+  if ('retries' in body) {
+    const value = body.retries;
+
+    if (
+      typeof value !== 'number' ||
+      !Number.isInteger(value) ||
+      value < 0
+    ) {
+      return {
+        valid: false,
+        error: 'retries must be a non-negative integer'
+      };
+    }
+  }
+
+  if ('configuration' in body) {
+    if (!isPlainObject(body.configuration)) {
+      return {
+        valid: false,
+        error: 'configuration must be a JSON object'
+      };
+    }
+  }
+
+  return {
+    valid: true,
+    updates: body
+  };
+}
 
 export async function runMonitoring(
   _req: Request,
@@ -191,76 +288,49 @@ export async function patchMonitoringConfigController(
   res: Response
 ) {
   try {
+    const validation = validateMonitoringConfigUpdate(req.body);
+
+    if (!validation.valid) {
+      return res.status(400).json({
+        status: 'error',
+        message: validation.error
+      });
+    }
+
     const rawId = req.params.id;
     const id = Array.isArray(rawId)
       ? rawId[0]
       : rawId;
 
-    if (!id) {
-      res.status(400).json({
-        status: 'error',
-        message: 'Invalid monitoring configuration id'
-      });
+if (!id) {
+  return res.status(400).json({
+    status: 'error',
+    message: 'Invalid monitoring configuration id'
+  });
+}
 
-      return;
-    }
-
-    const body = req.body ?? {};
-
-    const allowedFields = [
-      'enabled',
-      'interval_seconds',
-      'timeout_seconds',
-      'retries',
-      'configuration'
-    ] as const;
-
-    const updates: MonitoringConfigUpdate = {};
-
-    for (const field of allowedFields) {
-      if (Object.prototype.hasOwnProperty.call(body, field)) {
-        updates[field] = body[field];
-      }
-    }
-
-    if (Object.keys(updates).length === 0) {
-      res.status(400).json({
-        status: 'error',
-        message: 'No valid configuration fields supplied'
-      });
-
-      return;
-    }
-
-    const config = await patchMonitoringConfig(
+    const updatedConfig = await patchMonitoringConfig(
       id,
-      updates
+      validation.updates!
     );
 
-    if (!config) {
-      res.status(404).json({
+    if (!updatedConfig) {
+      return res.status(404).json({
         status: 'error',
         message: 'Monitoring configuration not found'
       });
-
-      return;
     }
 
-    res.json({
+    return res.status(200).json({
       status: 'ok',
-      data: config
+      data: updatedConfig
     });
   } catch (error) {
-    console.error(
-      'Failed to update monitoring config:',
-      error
-    );
+    console.error('Failed to update monitoring configuration:', error);
 
-    res.status(400).json({
+    return res.status(500).json({
       status: 'error',
-      message: error instanceof Error
-        ? error.message
-        : 'Failed to update monitoring configuration'
+      message: 'Failed to update monitoring configuration'
     });
   }
 }
