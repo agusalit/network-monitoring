@@ -42,7 +42,14 @@ export async function runMonitoringCycle(
 
     switch (config.method) {
       case 'SIMULATION':
-        result = await simulationProvider.check(target);
+        result = await simulationProvider.check(
+          target,
+          {
+            timeoutSeconds: config.timeout_seconds,
+            retries: config.retries,
+            configuration: config.configuration
+          }
+        );
         break;
 
       default:

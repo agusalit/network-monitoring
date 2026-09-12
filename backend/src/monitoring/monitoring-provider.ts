@@ -6,6 +6,15 @@ export interface MonitoringTarget {
   ipAddress: string | null;
 }
 
+export interface MonitoringCheckOptions {
+  timeoutSeconds: number;
+  retries: number;
+  configuration: unknown;
+}
+
 export interface MonitoringProvider {
-  check(target: MonitoringTarget): Promise<MonitoringResult>;
+  check(
+    target: MonitoringTarget,
+    options: MonitoringCheckOptions
+  ): Promise<MonitoringResult>;
 }

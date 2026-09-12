@@ -141,6 +141,8 @@ export async function createMonitoringRecord(
     packetLossPercent: number;
     checkedAt: string;
     message?: string;
+    provider: string;
+    rawData?: Record<string, unknown>;
   }
 ) {
   const { data, error } = await supabase
@@ -154,8 +156,9 @@ export async function createMonitoringRecord(
       packet_loss_percent: result.packetLossPercent,
       error_message: result.message ?? null,
       raw_data: {
-        provider: 'SIMULATION',
-        message: result.message ?? null
+        provider: result.provider,
+        message: result.message ?? null,
+        ...(result.rawData ?? {})
       }
     })
     .select()

@@ -9,4 +9,6 @@ export interface MonitoringResult {
   packetLossPercent: number;
   checkedAt: string;
   message?: string;
+  provider: string;
+  rawData?: Record<string, unknown>;
 }

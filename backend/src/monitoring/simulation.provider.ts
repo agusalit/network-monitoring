@@ -1,6 +1,7 @@
 import {
   MonitoringProvider,
-  MonitoringTarget
+  MonitoringTarget,
+  MonitoringCheckOptions
 } from './monitoring-provider.js';
 
 import {
@@ -11,9 +12,12 @@ export class SimulationProvider implements MonitoringProvider {
   private ap203Warning = true;
 
   async check(
-    target: MonitoringTarget
+    target: MonitoringTarget,
+    options: MonitoringCheckOptions
   ): Promise<MonitoringResult> {
     const checkedAt = new Date().toISOString();
+
+    void options;
 
     // AP-203 is our intentionally problematic device.
     if (target.name === 'AP-203' && this.ap203Warning) {
@@ -22,7 +26,12 @@ export class SimulationProvider implements MonitoringProvider {
         latencyMs: 180,
         packetLossPercent: 15,
         checkedAt,
-        message: 'High packet loss detected'
+        message: 'High packet loss detected',
+        provider: 'SIMULATION',
+        rawData: {
+          simulated: true,
+          scenario: 'AP203_HIGH_PACKET_LOSS'
+        }
       };
     }
 
@@ -30,7 +39,11 @@ export class SimulationProvider implements MonitoringProvider {
       status: 'ONLINE',
       latencyMs: Math.floor(Math.random() * 20) + 5,
       packetLossPercent: 0,
-      checkedAt
+      checkedAt,
+      provider: 'SIMULATION',
+      rawData: {
+        simulated: true
+      }
     };
   }
 
