@@ -11,9 +11,13 @@ import type {
 
 export default function MonitoringConfigurations() {
   const [configs, setConfigs] = useState<MonitoringConfig[]>([]);
+  const [originalConfigs, setOriginalConfigs] = useState<
+  MonitoringConfig[]
+>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(null);
 
   useEffect(() => {
     loadConfigs();
@@ -27,6 +31,7 @@ export default function MonitoringConfigurations() {
       const data = await getMonitoringConfigs();
 
       setConfigs(data);
+      setOriginalConfigs(data);
     } catch (err) {
       setError(
         err instanceof Error
@@ -38,38 +43,77 @@ export default function MonitoringConfigurations() {
     }
   }
 
-  async function handleSave(config: MonitoringConfig) {
-    try {
-      setSavingId(config.id);
-      setError(null);
-
-      const updatedConfig = await updateMonitoringConfig(
-        config.id,
-        {
-          enabled: config.enabled,
-          interval_seconds: config.interval_seconds,
-          timeout_seconds: config.timeout_seconds,
-          retries: config.retries
-        }
-      );
-
-      setConfigs((currentConfigs) =>
-        currentConfigs.map((currentConfig) =>
-          currentConfig.id === updatedConfig.id
-            ? updatedConfig
-            : currentConfig
-        )
-      );
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Failed to update monitoring configuration'
-      );
-    } finally {
-      setSavingId(null);
-    }
+async function handleSave(config: MonitoringConfig) {
+  if (!hasChanges(config)) {
+    return;
   }
+
+  if (
+    !Number.isInteger(config.interval_seconds) ||
+    config.interval_seconds <= 0
+  ) {
+    setError('Interval must be a positive integer');
+    return;
+  }
+
+  if (
+    !Number.isInteger(config.timeout_seconds) ||
+    config.timeout_seconds <= 0
+  ) {
+    setError('Timeout must be a positive integer');
+    return;
+  }
+
+  if (
+    !Number.isInteger(config.retries) ||
+    config.retries < 0
+  ) {
+    setError('Retries must be a non-negative integer');
+    return;
+  }
+
+  try {
+    setSavingId(config.id);
+    setSavedId(null);
+    setError(null);
+
+    const updatedConfig = await updateMonitoringConfig(
+      config.id,
+      {
+        enabled: config.enabled,
+        interval_seconds: config.interval_seconds,
+        timeout_seconds: config.timeout_seconds,
+        retries: config.retries
+      }
+    );
+
+    setConfigs((currentConfigs) =>
+      currentConfigs.map((currentConfig) =>
+        currentConfig.id === updatedConfig.id
+          ? updatedConfig
+          : currentConfig
+      )
+    );
+
+    setOriginalConfigs((currentConfigs) =>
+      currentConfigs.map((currentConfig) =>
+        currentConfig.id === updatedConfig.id
+          ? updatedConfig
+          : currentConfig
+      )
+    );
+
+    setSavedId(config.id);
+  } catch (err) {
+    setError(
+      err instanceof Error
+        ? err.message
+        : 'Failed to update monitoring configuration'
+    );
+  } finally {
+    setSavingId(null);
+  }
+}
 
   function updateLocalConfig(
     id: string,
@@ -87,6 +131,23 @@ export default function MonitoringConfigurations() {
       )
     );
   }
+
+  function hasChanges(config: MonitoringConfig): boolean {
+  const original = originalConfigs.find(
+    (item) => item.id === config.id
+  );
+
+  if (!original) {
+    return false;
+  }
+
+  return (
+    config.enabled !== original.enabled ||
+    config.interval_seconds !== original.interval_seconds ||
+    config.timeout_seconds !== original.timeout_seconds ||
+    config.retries !== original.retries
+  );
+}
 
   if (loading) {
     return (
@@ -240,15 +301,25 @@ export default function MonitoringConfigurations() {
                 </td>
 
                 <td className="px-4 py-3">
+                  {hasChanges(config) && (
+                    <div className="mb-1 text-xs text-amber-600">
+                      Unsaved changes
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => handleSave(config)}
-                    disabled={savingId === config.id}
+                    disabled={
+                      savingId === config.id ||
+                      !hasChanges(config)
+                    }
                     className="rounded bg-blue-600 px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {savingId === config.id
                       ? 'Saving...'
-                      : 'Save'}
+                      : savedId === config.id
+                        ? 'Saved'
+                        : 'Save'}
                   </button>
                 </td>
               </tr>
