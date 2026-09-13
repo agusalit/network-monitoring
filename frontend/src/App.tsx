@@ -16,6 +16,8 @@ import LocationDetail from './pages/LocationDetail.js';
 
 import Incidents from './pages/Incidents.js';
 
+import MonitoringConfigurations from './pages/MonitoringConfigurations';
+
 function App() {
   return (
     <BrowserRouter>
@@ -53,6 +55,11 @@ function App() {
         <Route
           path="/incidents"
           element={<Incidents />}
+        />
+
+        <Route
+          path="/monitoring-configs"
+          element={<MonitoringConfigurations />}
         />
       </Routes>clear
     </BrowserRouter>

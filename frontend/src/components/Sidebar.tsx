@@ -2,7 +2,8 @@ import {
   LayoutDashboard,
   Router,
   Map,
-  AlertTriangle
+  AlertTriangle,
+  SlidersHorizontal
 } from 'lucide-react';
 
 function Sidebar() {
@@ -50,6 +51,14 @@ function Sidebar() {
         >
           <AlertTriangle size={18} />
           Incidents
+        </a>
+
+        <a
+          href="/monitoring-configs"
+          className="nav-item"
+        >
+          <SlidersHorizontal size={18} />
+          Monitoring Configurations
         </a>
       </nav>
 
