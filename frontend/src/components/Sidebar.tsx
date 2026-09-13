@@ -6,6 +6,8 @@ import {
   SlidersHorizontal
 } from 'lucide-react';
 
+import { NavLink } from 'react-router-dom';
+
 function Sidebar() {
   return (
     <aside className="sidebar">
@@ -21,45 +23,55 @@ function Sidebar() {
       </div>
 
       <nav className="sidebar-nav">
-        <a
-          href="/dashboard"
-          className="nav-item active"
+        <NavLink
+          to="/dashboard"
+          className={({ isActive }) =>
+            `nav-item ${isActive ? 'active' : ''}`
+          }
         >
           <LayoutDashboard size={18} />
           Dashboard
-        </a>
+        </NavLink>
 
-        <a
-          href="#"
-          className="nav-item"
+        <NavLink
+          to="/devices"
+          className={({ isActive }) =>
+            `nav-item ${isActive ? 'active' : ''}`
+          }
         >
           <Router size={18} />
           Devices
-        </a>
+        </NavLink>
 
-        <a
-          href="#"
-          className="nav-item"
+        <NavLink
+          to="/locations"
+          className={({ isActive }) =>
+            `nav-item ${isActive ? 'active' : ''}`
+          }
         >
           <Map size={18} />
           Locations
-        </a>
+        </NavLink>
 
-        <a
-          href="#"
-          className="nav-item"
+        <NavLink
+          to="/incidents"
+          className={({ isActive }) =>
+            `nav-item ${isActive ? 'active' : ''}`
+          }
         >
           <AlertTriangle size={18} />
           Incidents
-        </a>
+        </NavLink>
 
-        <a
-          href="/monitoring-configs"
-          className="nav-item"
+        <NavLink
+          to="/monitoring-configs"
+          className={({ isActive }) =>
+            `nav-item ${isActive ? 'active' : ''}`
+          }
         >
           <SlidersHorizontal size={18} />
           Monitoring Configurations
-        </a>
+        </NavLink>
       </nav>
 
       <div className="sidebar-footer">
