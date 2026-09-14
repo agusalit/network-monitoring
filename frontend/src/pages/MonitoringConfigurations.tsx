@@ -135,6 +135,27 @@ async function handleSave(config: MonitoringConfig) {
     );
   }
 
+  function resetLocalConfig(id: string) {
+    const original = originalConfigs.find(
+      (config) => config.id === id
+    );
+
+    if (!original) {
+      return;
+    }
+
+    setConfigs((currentConfigs) =>
+      currentConfigs.map((config) =>
+        config.id === id
+          ? { ...original }
+          : config
+      )
+    );
+
+    setError(null);
+    setSavedId(null);
+  }
+
   function hasChanges(config: MonitoringConfig): boolean {
   const original = originalConfigs.find(
     (item) => item.id === config.id
@@ -301,6 +322,22 @@ const filteredConfigs = configs.filter((config) => {
                     {config.device?.ip_address ?? 'No IP address'}
                   </div>
 
+                  <div className="mt-1">
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                        config.device?.status === 'ONLINE'
+                          ? 'bg-green-100 text-green-700'
+                          : config.device?.status === 'WARNING'
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : config.device?.status === 'OFFLINE'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-gray-100 text-gray-700'
+                      }`}
+                    >
+                      {config.device?.status ?? 'UNKNOWN'}
+                    </span>
+                  </div>
+
                   <div className="mt-1 text-xs text-gray-500">
                     {config.device?.location?.area?.property?.name ?? 'Unknown property'}
                     {' / '}
@@ -390,6 +427,17 @@ const filteredConfigs = configs.filter((config) => {
                       Unsaved changes
                     </div>
                   )}
+
+                  {hasChanges(config) && (
+                    <button
+                      type="button"
+                      onClick={() => resetLocalConfig(config.id)}
+                      className="mr-2 rounded border border-gray-300 px-3 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                      Reset
+                    </button>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => handleSave(config)}
