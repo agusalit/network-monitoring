@@ -30,7 +30,19 @@ export async function findAllMonitoringConfigs() {
         device_type,
         vendor,
         model,
-        status
+        status,
+        location:locations (
+          id,
+          name,
+          area:areas (
+            id,
+            name,
+            property:properties (
+              id,
+              name
+            )
+          )
+        )
       )
     `)
     .order('created_at', {
@@ -68,7 +80,19 @@ export async function findMonitoringConfigById(
         device_type,
         vendor,
         model,
-        status
+        status,
+        location:locations (
+          id,
+          name,
+          area:areas (
+            id,
+            name,
+            property:properties (
+              id,
+              name
+            )
+          )
+        )
       )
     `)
     .eq('id', id)
@@ -108,7 +132,19 @@ export async function updateMonitoringConfig(
         device_type,
         vendor,
         model,
-        status
+        status,
+        location:locations (
+          id,
+          name,
+          area:areas (
+            id,
+            name,
+            property:properties (
+              id,
+              name
+            )
+          )
+        )
       )
     `)
     .maybeSingle();

@@ -224,14 +224,14 @@ export async function getMonitoringConfigs(
       data: configs
     });
   } catch (error) {
-    console.error(
-      'Failed to retrieve monitoring configs:',
-      error
-    );
+    console.error('Failed to retrieve monitoring configurations:', error);
 
-    res.status(500).json({
+    return res.status(500).json({
       status: 'error',
-      message: 'Failed to retrieve monitoring configurations'
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Failed to retrieve monitoring configurations'
     });
   }
 }

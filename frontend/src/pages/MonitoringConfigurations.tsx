@@ -18,6 +18,9 @@ export default function MonitoringConfigurations() {
   const [error, setError] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [methodFilter, setMethodFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('ALL');
 
   useEffect(() => {
     loadConfigs();
@@ -149,6 +152,39 @@ async function handleSave(config: MonitoringConfig) {
   );
 }
 
+const filteredConfigs = configs.filter((config) => {
+  const search = searchTerm.toLowerCase();
+
+  const deviceName =
+    config.device?.name?.toLowerCase() ?? '';
+
+  const hostname =
+    config.device?.hostname?.toLowerCase() ?? '';
+
+  const ipAddress =
+    config.device?.ip_address?.toLowerCase() ?? '';
+
+  const matchesSearch =
+    deviceName.includes(search) ||
+    hostname.includes(search) ||
+    ipAddress.includes(search);
+
+  const matchesMethod =
+    methodFilter === 'ALL' ||
+    config.method === methodFilter;
+
+  const matchesStatus =
+    statusFilter === 'ALL' ||
+    (statusFilter === 'ENABLED' && config.enabled) ||
+    (statusFilter === 'DISABLED' && !config.enabled);
+
+  return (
+    matchesSearch &&
+    matchesMethod &&
+    matchesStatus
+  );
+});
+
   if (loading) {
     return (
       <div className="p-6">
@@ -176,6 +212,46 @@ async function handleSave(config: MonitoringConfig) {
         </div>
       )}
 
+      <div className="mb-4 grid gap-3 md:grid-cols-3">
+        <input
+          type="text"
+          placeholder="Search device, hostname, or IP..."
+          value={searchTerm}
+          onChange={(event) =>
+            setSearchTerm(event.target.value)
+          }
+          className="rounded-md border border-gray-300 px-3 py-2"
+        />
+
+        <select
+          value={methodFilter}
+          onChange={(event) =>
+            setMethodFilter(event.target.value)
+          }
+          className="rounded-md border border-gray-300 px-3 py-2"
+        >
+          <option value="ALL">All methods</option>
+          <option value="SIMULATION">Simulation</option>
+          <option value="ICMP">ICMP</option>
+          <option value="SNMP">SNMP</option>
+          <option value="API">API</option>
+        </select>
+
+        <select
+          value={statusFilter}
+          onChange={(event) =>
+            setStatusFilter(event.target.value)
+          }
+          className="rounded-md border border-gray-300 px-3 py-2"
+        >
+          <option value="ALL">All statuses</option>
+          <option value="ENABLED">Enabled only</option>
+          <option value="DISABLED">Disabled only</option>
+        </select>
+      </div>
+      <p className="mb-3 text-sm text-gray-600">
+        Showing {filteredConfigs.length} of {configs.length} configurations
+      </p>
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
         <table className="min-w-full text-sm">
           <thead className="bg-gray-100">
@@ -211,7 +287,7 @@ async function handleSave(config: MonitoringConfig) {
           </thead>
 
           <tbody>
-            {configs.map((config) => (
+            {filteredConfigs.map((config) => (
               <tr
                 key={config.id}
                 className="border-t border-gray-200"
@@ -223,6 +299,14 @@ async function handleSave(config: MonitoringConfig) {
 
                   <div className="text-xs text-gray-500">
                     {config.device?.ip_address ?? 'No IP address'}
+                  </div>
+
+                  <div className="mt-1 text-xs text-gray-500">
+                    {config.device?.location?.area?.property?.name ?? 'Unknown property'}
+                    {' / '}
+                    {config.device?.location?.area?.name ?? 'Unknown area'}
+                    {' / '}
+                    {config.device?.location?.name ?? 'Unknown location'}
                   </div>
                 </td>
 
@@ -324,6 +408,17 @@ async function handleSave(config: MonitoringConfig) {
                 </td>
               </tr>
             ))}
+
+            {filteredConfigs.length === 0 && (
+              <tr>
+                <td
+                  colSpan={7}
+                  className="px-4 py-6 text-center text-gray-500"
+                >
+                  No monitoring configurations match your filters.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

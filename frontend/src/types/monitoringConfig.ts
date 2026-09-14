@@ -7,6 +7,7 @@ export interface MonitoringConfigDevice {
   hostname: string | null;
   ip_address: string | null;
   device_type: string | null;
+  location: MonitoringConfigLocation | null;
 }
 
 export interface MonitoringConfig {
@@ -29,4 +30,21 @@ export interface MonitoringConfigUpdate {
   timeout_seconds?: number;
   retries?: number;
   configuration?: Record<string, unknown>;
+}
+
+export interface MonitoringConfigProperty {
+  id: string;
+  name: string;
+}
+
+export interface MonitoringConfigArea {
+  id: string;
+  name: string;
+  property: MonitoringConfigProperty | null;
+}
+
+export interface MonitoringConfigLocation {
+  id: string;
+  name: string;
+  area: MonitoringConfigArea | null;
 }
