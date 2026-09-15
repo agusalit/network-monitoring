@@ -35,6 +35,7 @@ function validateMonitoringConfigUpdate(body: unknown): {
   }
 
   const allowedFields = [
+    'method',
     'enabled',
     'interval_seconds',
     'timeout_seconds',
@@ -66,6 +67,25 @@ function validateMonitoringConfigUpdate(body: unknown): {
       error: 'enabled must be a boolean'
     };
   }
+
+  if ('method' in body) {
+  const validMethods = [
+    'SIMULATION',
+    'ICMP',
+    'SNMP',
+    'API'
+  ];
+
+  if (
+    typeof body.method !== 'string' ||
+    !validMethods.includes(body.method)
+  ) {
+    return {
+      valid: false,
+      error: 'method must be one of SIMULATION, ICMP, SNMP, or API'
+    };
+  }
+}
 
   const positiveIntegerFields = [
     'interval_seconds',

@@ -18,6 +18,21 @@ interface MonitoringIncidentResult {
   message?: string;
 }
 
+function getIncidentSeverity(
+  status: string
+): 'INFO' | 'WARNING' | 'CRITICAL' {
+  switch (status) {
+    case 'OFFLINE':
+      return 'CRITICAL';
+
+    case 'WARNING':
+      return 'WARNING';
+
+    default:
+      return 'INFO';
+  }
+}
+
 export async function processMonitoringResult(
   result: MonitoringIncidentResult
 ) {
@@ -32,6 +47,9 @@ export async function processMonitoringResult(
 
   const isHealthy =
     result.status === 'ONLINE';
+
+  const incidentSeverity =
+    getIncidentSeverity(result.status);
 
   const previousRecord =
     await findPreviousMonitoringRecord(
@@ -86,7 +104,7 @@ export async function processMonitoringResult(
       await updateIncident(
         activeIncident.id,
         {
-          severity: result.status,
+          severity: incidentSeverity,
           title:
             result.message ??
             'Network issue detected',
@@ -108,7 +126,7 @@ export async function processMonitoringResult(
 
     const incident = await createIncident({
       deviceId: result.deviceId,
-      severity: result.status,
+      severity: incidentSeverity,
       title:
         result.message ??
         'Network issue detected',

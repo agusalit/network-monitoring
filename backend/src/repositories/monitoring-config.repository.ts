@@ -1,6 +1,7 @@
 import { supabase } from '../config/supabase.js';
 
 export interface MonitoringConfigUpdate {
+  method?: 'SIMULATION' | 'ICMP' | 'SNMP' | 'API';
   enabled?: boolean;
   interval_seconds?: number;
   timeout_seconds?: number;

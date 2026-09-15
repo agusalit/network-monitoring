@@ -15,6 +15,10 @@ import {
 } from './simulation.provider.js';
 
 import {
+  IcmpProvider
+} from './icmp.provider.js';
+
+import {
   processMonitoringResult
 } from '../incidents/incident.service.js';
 
@@ -26,6 +30,7 @@ import {
 } from '../repositories/monitoring-config.repository.js';
 
 const simulationProvider = new SimulationProvider();
+const icmpProvider = new IcmpProvider();
 
 export async function runMonitoringCycle(
   configs?: MonitoringConfigWithDevice[]
@@ -47,15 +52,24 @@ export async function runMonitoringCycle(
 
     let result;
 
+    const checkOptions = {
+      timeoutSeconds: config.timeout_seconds,
+      retries: config.retries,
+      configuration: config.configuration
+    };
+
     switch (config.method) {
       case 'SIMULATION':
         result = await simulationProvider.check(
           target,
-          {
-            timeoutSeconds: config.timeout_seconds,
-            retries: config.retries,
-            configuration: config.configuration
-          }
+          checkOptions
+        );
+        break;
+
+      case 'ICMP':
+        result = await icmpProvider.check(
+          target,
+          checkOptions
         );
         break;
 
