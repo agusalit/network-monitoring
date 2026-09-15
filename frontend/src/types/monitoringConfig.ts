@@ -1,3 +1,9 @@
+export type MonitoringMethod =
+  | 'SIMULATION'
+  | 'ICMP'
+  | 'SNMP'
+  | 'API';
+
 export interface MonitoringConfigDevice {
   id: string;
   name: string;
@@ -13,7 +19,7 @@ export interface MonitoringConfigDevice {
 export interface MonitoringConfig {
   id: string;
   device_id: string;
-  method: string;
+  method: MonitoringMethod;
   enabled: boolean;
   interval_seconds: number;
   timeout_seconds: number;
@@ -25,7 +31,7 @@ export interface MonitoringConfig {
 }
 
 export interface MonitoringConfigUpdate {
-  method?: 'SIMULATION' | 'ICMP' | 'SNMP' | 'API';
+  method?: MonitoringMethod;
   enabled?: boolean;
   interval_seconds?: number;
   timeout_seconds?: number;

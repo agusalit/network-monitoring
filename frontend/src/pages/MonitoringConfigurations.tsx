@@ -6,7 +6,8 @@ import {
 } from '../services/monitoringConfigApi';
 
 import type {
-  MonitoringConfig
+  MonitoringConfig,
+  MonitoringMethod
 } from '../types/monitoringConfig';
 
 export default function MonitoringConfigurations() {
@@ -83,6 +84,7 @@ async function handleSave(config: MonitoringConfig) {
     const updatedConfig = await updateMonitoringConfig(
       config.id,
       {
+        method: config.method,
         enabled: config.enabled,
         interval_seconds: config.interval_seconds,
         timeout_seconds: config.timeout_seconds,
@@ -121,7 +123,7 @@ async function handleSave(config: MonitoringConfig) {
   function updateLocalConfig(
     id: string,
     field: keyof MonitoringConfig,
-    value: boolean | number
+    value: boolean | number | string
   ) {
     setConfigs((currentConfigs) =>
       currentConfigs.map((config) =>
@@ -166,6 +168,7 @@ async function handleSave(config: MonitoringConfig) {
   }
 
   return (
+    config.method !== original.method ||
     config.enabled !== original.enabled ||
     config.interval_seconds !== original.interval_seconds ||
     config.timeout_seconds !== original.timeout_seconds ||
@@ -348,7 +351,34 @@ const filteredConfigs = configs.filter((config) => {
                 </td>
 
                 <td className="px-4 py-3">
-                  {config.method}
+                  <select
+                    value={config.method}
+                    onChange={(event) =>
+                      updateLocalConfig(
+                        config.id,
+                        'method',
+                        event.target.value as MonitoringMethod
+                      )
+                    }
+                    className="rounded border border-gray-300 px-2 py-1"
+                  >
+                    <option value="SIMULATION">Simulation</option>
+                    <option value="ICMP">ICMP</option>
+                    <option value="SNMP" disabled>
+                      SNMP (Not implemented)
+                    </option>
+                    <option value="API" disabled>
+                      API (Not implemented)
+                    </option>
+                  </select>
+                  {(config.method === 'SIMULATION' ||
+                    config.method === 'ICMP') && (
+                    <div className="mt-1 text-xs text-gray-500">
+                      {config.method === 'SIMULATION'
+                        ? 'Uses simulated monitoring data.'
+                        : 'Uses ICMP ping from the monitoring server.'}
+                    </div>
+                  )}
                 </td>
 
                 <td className="px-4 py-3">
